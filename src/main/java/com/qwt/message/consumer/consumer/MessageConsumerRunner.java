@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -23,7 +24,7 @@ public class MessageConsumerRunner {
     private long monitorPolling;
     private final MessageConsumerFactory messageConsumerFactory;
     private ExecutorService executor;
-    private List<MessageConsumerThread> messageConsumerList = new ArrayList<>();
+    private List<MessageConsumerThread> consumerThreads = new ArrayList<>();
 
     @Autowired
     public MessageConsumerRunner(MessageConsumerFactory messageConsumerFactory) {
@@ -31,6 +32,7 @@ public class MessageConsumerRunner {
         this.numberOfConsumers = 5;//TODO: use kafkaConfig.getConsumersCount()
         this.messageConsumerFactory = messageConsumerFactory;
         this.executor = Executors.newCachedThreadPool();
+        this.manageShutdown();
     }
 
     public void run() {
@@ -42,7 +44,7 @@ public class MessageConsumerRunner {
     private void createMessageConsumer() {
         LOGGER.info("Creating message consumer...");
         MessageConsumer consumer = messageConsumerFactory.create();
-        messageConsumerList.add(new MessageConsumerThread(executor.submit(consumer), consumer));
+        consumerThreads.add(new MessageConsumerThread(executor.submit(consumer), consumer));
     }
 
     @Async
@@ -50,10 +52,10 @@ public class MessageConsumerRunner {
         while (true) {
             // the purpose here is to check if thread is done with job, if yes, remove it and recreate
             try {
-                List<MessageConsumerThread> done = messageConsumerList.stream().filter(i -> i.thread.isDone()).collect(Collectors.toList());
+                List<MessageConsumerThread> done = consumerThreads.stream().filter(i -> i.thread.isDone()).collect(Collectors.toList());
                 done.stream().forEach(i -> {
 //                    done.remove(i);
-                    messageConsumerList.remove(i);
+                    consumerThreads.remove(i);
                     createMessageConsumer();
                 });
                 if (done.size() != 0) {
@@ -76,5 +78,28 @@ public class MessageConsumerRunner {
             this.thread = thread;
             this.consumer = consumer;
         }
+    }
+
+    /**
+     * This is to gracefully shutdown JVM, which means before JVM got killed, the job of the threads would be finished
+     */
+    private void manageShutdown() {
+        LOGGER.info("manage shut down");
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+
+            @Override
+            public void run () {
+                LOGGER.info("consumerThreads: " + consumerThreads.size());
+                for (MessageConsumerThread consumerThread : consumerThreads) {
+                    consumerThread.consumer.shutdown();
+                }
+                executor.shutdown();
+                try {
+                    executor.awaitTermination(5000, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

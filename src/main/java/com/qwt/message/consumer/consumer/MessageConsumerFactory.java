@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 @Component
 public abstract class MessageConsumerFactory {
 
+    /**
+     * https://www.jianshu.com/p/fc574881e3a2
+     */
     @Lookup
     protected abstract MessageConsumer create();
 }
