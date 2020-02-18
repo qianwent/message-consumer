@@ -31,7 +31,10 @@ public class MessageConsumerRunner {
         // TODO: int numberOfConsumers, ExecutorService executor, cannot be used in constructor parameter, because no such bean found
         this.numberOfConsumers = 5;//TODO: use kafkaConfig.getConsumersCount()
         this.messageConsumerFactory = messageConsumerFactory;
-        this.executor = Executors.newCachedThreadPool();
+//        this.executor = Executors.newCachedThreadPool();
+        // normally don't use newCachedThreadPool, because it would keep creating new threads if other threads are currently in use,
+        // which might cause Exception in thread "main" java.lang.OutOfMemoryError: unable to create new native thread
+        this.executor = Executors.newFixedThreadPool(numberOfConsumers);
         this.manageShutdown();
     }
 
