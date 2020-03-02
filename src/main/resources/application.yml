@@ -1,0 +1,16 @@
+server:
+  port: 9090
+
+kafka :
+  bootstrap-servers: localhost:9092
+  group-id: consumer
+  topic: test1
+  error-topic: error
+  topic-polling: 1000 # interval of consumer.poll in MessageConsumer
+  consumers-count: 5 # number of consumer threads to spin
+  processor-thread-pool: 100 # the max thread pool size for threads processing each record
+  max-poll-records: 10 # the max number of records kafka-consumer can read in a poll
+  max-poll-interval: 60000 # the max time between poll intervals allowed
+  monitor-polling: 1000 # the interval to verify number of consumer threads
+  session-timeout: 30000
+  request-timeout: 120000

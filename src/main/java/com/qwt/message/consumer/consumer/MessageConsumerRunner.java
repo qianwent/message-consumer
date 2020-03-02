@@ -1,5 +1,6 @@
 package com.qwt.message.consumer.consumer;
 
+import com.qwt.message.consumer.config.KafkaConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +28,15 @@ public class MessageConsumerRunner {
     private List<MessageConsumerThread> consumerThreads = new ArrayList<>();
 
     @Autowired
-    public MessageConsumerRunner(MessageConsumerFactory messageConsumerFactory) {
+    public MessageConsumerRunner(KafkaConfig kafkaConfig, MessageConsumerFactory messageConsumerFactory) {
         // TODO: int numberOfConsumers, ExecutorService executor, cannot be used in constructor parameter, because no such bean found
-        this.numberOfConsumers = 5;//TODO: use kafkaConfig.getConsumersCount()
+        /**
+         * note: how many consumer threads are needed? Based on calculation.
+         * 估算主题的吞吐量T和消费者的吞吐量S，假设每秒从topic上写入和读取1G数据，而每个consumer线程每秒处理50M的数据
+         * 那么至少需要20个partition，那么同样用20个consumer同时读取这些分区，从而达到每秒1G的吞吐量。
+         * 这是粗略估算，实际上需要测试调优。
+         */
+        this.numberOfConsumers = kafkaConfig.getConsumersCount();
         this.messageConsumerFactory = messageConsumerFactory;
 //        this.executor = Executors.newCachedThreadPool();
         // normally don't use newCachedThreadPool, because it would keep creating new threads if other threads are currently in use,
@@ -58,6 +65,7 @@ public class MessageConsumerRunner {
                 List<MessageConsumerThread> done = consumerThreads.stream().filter(i -> i.thread.isDone()).collect(Collectors.toList());
                 done.stream().forEach(i -> {
 //                    done.remove(i);
+                    LOGGER.info("current thread done, remove thread - " + i + " and recreate thread");
                     consumerThreads.remove(i);
                     createMessageConsumer();
                 });
