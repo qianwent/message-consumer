@@ -4,7 +4,7 @@ server:
 kafka :
   bootstrap-servers: localhost:9092
   group-id: consumer
-  topic: test1
+  topic: test
   error-topic: error
   topic-polling: 1000 # interval of consumer.poll in MessageConsumer
   consumers-count: 5 # number of consumer threads to spin
@@ -14,3 +14,11 @@ kafka :
   monitor-polling: 1000 # the interval to verify number of consumer threads
   session-timeout: 30000
   request-timeout: 120000
+
+addValue:
+  url: http://localhost:1234/message/add
+  readTimeout: 1500
+  connectTimeout: 500
+  clientConnectionManager:
+    defaultMaxPerRoute: 200
+    maxTotal: 400

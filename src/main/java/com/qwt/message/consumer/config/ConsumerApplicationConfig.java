@@ -1,5 +1,6 @@
 package com.qwt.message.consumer.config;
 
+import com.qwt.message.consumer.http.RestOperationsFactory;
 import com.qwt.message.consumer.processor.MessageProcessor;
 import com.qwt.message.consumer.processor.Processor;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.web.client.RestOperations;
 
 import java.util.Optional;
 import java.util.Properties;
@@ -50,5 +52,10 @@ public class ConsumerApplicationConfig {
 //        addKafkaSecurity(kafkaConfig, props);
 
         return props;
+    }
+
+    @Bean("addValueAPIRestOperations")
+    public RestOperations addValueAPIRestOperations(RestOperationsFactory restOperationsFactory) {
+        return restOperationsFactory.createRestOperations("addValue");
     }
 }
