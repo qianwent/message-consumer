@@ -1,5 +1,8 @@
 package com.qwt.message.consumer.service;
 
+import com.qwt.message.consumer.exception.KnownServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +21,8 @@ import java.util.Map;
 @Component
 public class DBServiceImpl implements DBService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DBServiceImpl.class);
+
     private RestOperations restOperations;
     private String url;
 
@@ -34,19 +39,22 @@ public class DBServiceImpl implements DBService {
     @Override
     public String addValue(String value) {
         try {
-            System.out.println("----------------test call");
             ResponseEntity responseEntity = restOperations.exchange(createRequest(value), new ParameterizedTypeReference<Map<String, String>>() {
             });
-            System.out.println("response: " + responseEntity);
+            LOGGER.info("response: " + responseEntity);
             return value;
         } catch (Exception e) {
+            LOGGER.error("RestOperations exception: ", e);
+            if (e instanceof HttpStatusCodeException && ((HttpStatusCodeException) e).getStatusCode().is4xxClientError()) {
+                throw new KnownServiceException(e);
+            }
             throw e;
         }
     }
 
     private RequestEntity createRequest(String value) {
         try {
-            System.out.println("--------------createRequest");
+            LOGGER.info("--------------createRequest");
             RequestEntity request = RequestEntity.post(new URI(url))
                     .accept(MediaType.APPLICATION_JSON)
                     .header("Accept-Encoding", "gzip")

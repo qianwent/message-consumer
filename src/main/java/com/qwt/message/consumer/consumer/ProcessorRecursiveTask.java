@@ -2,6 +2,8 @@ package com.qwt.message.consumer.consumer;
 
 import com.qwt.message.consumer.processor.MessageProcessor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +13,8 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
 public class ProcessorRecursiveTask extends RecursiveAction {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessorRecursiveTask.class);
 
     private MessageProcessor processor;
     private List<ConsumerRecord> records;
@@ -22,11 +26,11 @@ public class ProcessorRecursiveTask extends RecursiveAction {
 
     @Override
     protected void compute() {
-        System.out.println("compute with records size: " + records.size());
+        LOGGER.info("compute with records size: " + records.size());
         if (records.size() > 1) {
             ForkJoinTask.invokeAll(createTasks(records));
         } else {
-            System.out.println("abcabc------------------------------" + records.get(0).value());
+            LOGGER.info("only one record: " + records.get(0).value());
             process(records.get(0));
         }
 

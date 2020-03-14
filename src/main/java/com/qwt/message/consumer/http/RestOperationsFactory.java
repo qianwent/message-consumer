@@ -36,7 +36,6 @@ public class RestOperationsFactory {
     }
 
     private RestOperations newRestOperations(String key) {
-        System.out.println("--------------newRestOperations");
         final int readTimeout = getConfiguredReadTimeout(key);
         final int connectTimeout = getConfiguredConnectTimeout(key);
         HttpClient httpClient = buildHttpClient(key);
