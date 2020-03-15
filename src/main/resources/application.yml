@@ -22,3 +22,6 @@ addValue:
   clientConnectionManager:
     defaultMaxPerRoute: 200
     maxTotal: 400
+
+recoverable-retry:
+  min: 3000

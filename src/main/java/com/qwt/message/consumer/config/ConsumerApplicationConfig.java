@@ -3,6 +3,7 @@ package com.qwt.message.consumer.config;
 import com.qwt.message.consumer.http.RestOperationsFactory;
 import com.qwt.message.consumer.processor.MessageProcessor;
 import com.qwt.message.consumer.processor.Processor;
+import com.qwt.message.consumer.processor.retry.RetryTimeManagerFactory;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -22,9 +23,10 @@ public class ConsumerApplicationConfig {
     @Bean("messageProcessor")
     public MessageProcessor<String> messageProcessor(
             @Qualifier("coreProcessor")
-            Processor<ConsumerRecord, Optional<String>> coreProcessor
+            Processor<ConsumerRecord, Optional<String>> coreProcessor,
+            RetryTimeManagerFactory retryTimeManagerFactory
     ) {
-        return new MessageProcessor<>(coreProcessor);
+        return new MessageProcessor<>(coreProcessor, retryTimeManagerFactory);
     }
 
     @Bean
