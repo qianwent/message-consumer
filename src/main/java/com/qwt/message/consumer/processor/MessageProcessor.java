@@ -1,6 +1,7 @@
 package com.qwt.message.consumer.processor;
 
 import com.qwt.message.consumer.exception.RecoverableException;
+import com.qwt.message.consumer.processor.exception.ErrorLogWriter;
 import com.qwt.message.consumer.processor.retry.RetryTimeManager;
 import com.qwt.message.consumer.processor.retry.RetryTimeManagerFactory;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -22,10 +23,12 @@ public class MessageProcessor<D> implements Processor<ConsumerRecord<String, Str
 
     private Processor<ConsumerRecord, Optional<D>> coreProcessor;
     private RetryTimeManagerFactory retryTimeManagerFactory;
+    private ErrorLogWriter errorLogWriter;
 
-    public MessageProcessor(Processor<ConsumerRecord, Optional<D>> coreProcessor, RetryTimeManagerFactory retryTimeManagerFactory) {
+    public MessageProcessor(Processor<ConsumerRecord, Optional<D>> coreProcessor, RetryTimeManagerFactory retryTimeManagerFactory, ErrorLogWriter errorLogWriter) {
         this.coreProcessor = coreProcessor;
         this.retryTimeManagerFactory = retryTimeManagerFactory;
+        this.errorLogWriter = errorLogWriter;
     }
 
     @Override
@@ -59,7 +62,7 @@ public class MessageProcessor<D> implements Processor<ConsumerRecord<String, Str
 
     private boolean handleError(ConsumerRecord<String, String> source, Exception ex) {
         try {
-            // TODO unrecoverable error, write to error topic
+            errorLogWriter.handleError(source.value(), ex);
             return true;
         } catch (Exception e) {
             return false;
