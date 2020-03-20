@@ -25,3 +25,11 @@ addValue:
 
 recoverable-retry:
   min: 3000
+
+hystrix:
+  threadpool:
+    default: 50
+  timeout:
+    default: 1500
+    AddValueCommand: 5000
+#    DWWriteCommand: 3000

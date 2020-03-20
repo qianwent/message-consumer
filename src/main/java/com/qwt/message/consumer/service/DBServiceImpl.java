@@ -1,5 +1,6 @@
 package com.qwt.message.consumer.service;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.qwt.message.consumer.exception.KnownServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,12 @@ public class DBServiceImpl implements DBService {
         this.url = url;
     }
 
+    @HystrixCommand(
+            groupKey="AddValue",
+            commandKey = "AddValueCommand",
+            threadPoolKey = "AddValueCommand",
+            ignoreExceptions = {KnownServiceException.class}
+    )
     @Override
     public String addValue(String value) {
         try {

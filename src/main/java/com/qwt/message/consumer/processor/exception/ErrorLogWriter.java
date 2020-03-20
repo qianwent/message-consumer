@@ -25,7 +25,7 @@ public class ErrorLogWriter {
     }
 
     public void handleError(String message, Exception exception) throws Exception {
-        ErrorTopicMessage errorTopicMessage = new ErrorTopicMessage(message, exception.getMessage());
+        ErrorTopicMessage errorTopicMessage = new ErrorTopicMessage(message, exception.getMessage() != null ? exception.getMessage() : exception.getCause().toString());
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>(errorTopicName, serializeToJson(errorTopicMessage));
         try {
             Future<RecordMetadata> errorPostCall = kafkaProducer.send(producerRecord);
