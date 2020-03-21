@@ -1,4 +1,4 @@
-package com.qwt.message.consumer.service;
+package com.qwt.message.consumer.service.db;
 
 public interface DBService {
 

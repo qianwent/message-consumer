@@ -1,22 +1,22 @@
 package com.qwt.message.consumer.processor;
 
-import com.qwt.message.consumer.service.db.DBService;
+import com.qwt.message.consumer.service.dw.DWService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DBWriter implements Processor<String, String> {
+public class DWWriter implements Processor<String, String> {
 
-    private DBService dbService;
+    private DWService dwService;
 
     @Autowired
-    public DBWriter(DBService dbService) {
-        this.dbService = dbService;
+    public DWWriter(DWService dwService) {
+        this.dwService = dwService;
     }
 
     @Override
     public String process(String source) {
-        dbService.addValue(source);
+        dwService.addMoreValue(source);
         return source;
     }
 }

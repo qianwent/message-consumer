@@ -10,14 +10,18 @@ import java.util.Optional;
 public class CoreProcessor implements Processor<ConsumerRecord<String, String>, Optional<String>> {
 
     private DBWriter dbWriter;
+    private DWWriter dwWriter;
 
     @Autowired
-    public CoreProcessor(DBWriter dbWriter) {
+    public CoreProcessor(DBWriter dbWriter,
+                         DWWriter dwWriter) {
         this.dbWriter = dbWriter;
+        this.dwWriter = dwWriter;
     }
 
     @Override
     public Optional<String> process(ConsumerRecord<String, String> source) {
-        return Optional.ofNullable(source).map(x -> dbWriter.process(x.value()));
+        return Optional.ofNullable(source).map(x -> dbWriter.process(x.value()))
+                .map(x -> dwWriter.process(x));
     }
 }

@@ -32,4 +32,4 @@ hystrix:
   timeout:
     default: 1500
     AddValueCommand: 5000
-#    DWWriteCommand: 3000
+    DWWriteCommand: 3000

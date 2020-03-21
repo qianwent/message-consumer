@@ -1,4 +1,4 @@
-package com.qwt.message.consumer.service;
+package com.qwt.message.consumer.service.db;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.qwt.message.consumer.exception.KnownServiceException;
