@@ -31,5 +31,6 @@ hystrix:
     default: 50
   timeout:
     default: 1500
+    # switch the value < or > 3000 would change the behavior
     AddValueCommand: 5000
     DWWriteCommand: 3000
